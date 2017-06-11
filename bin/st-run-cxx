@@ -1,0 +1,18 @@
+#!/bin/bash
+
+mkdir -p $ST_HOME/$USER
+
+HTTPS_PROXY=$https_proxy
+HTTP_PROXY=$http_proxy
+
+docker run -i -v $ST_CORE:/project/sawtooth-core \
+            --env https_proxy=$https_proxy \
+            --env http_proxy=$http_proxy \
+            --env HTTPS_PROXY=$HTTPS_PROXY \
+            --env HTTP_PROXY=$HTTP_PROXY \
+            -v /etc/passwd:/etc/passwd:ro \
+            -v /etc/group:/etc/group:ro \
+            -v $ST_HOME/$USER:/home/$USER \
+            -t sawtooth-dev-cxx \
+            $*
+

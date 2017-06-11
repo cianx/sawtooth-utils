@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+run_docker_test $1 -s $2 2>&1 | st-filter-test-results

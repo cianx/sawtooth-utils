@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# never set -e in this script, it will cause your shell to exit
+# set -x
+
+# Get the script dir
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR=${DIR%/} # remove trailing slashes
+
+# Setup environment with standard repo locations.
+export ST_UTILS="$( dirname $( cd "${DIR}" && pwd ) )"
+export ST_HOME="$( dirname ${ST_UTILS} )"
+export ST_CORE="${ST_HOME}/sawtooth-core"
+
+
+# add our helper scripts to the path if they are not already there.
+[[ ":$PATH:" != *":${ST_UTILS}/bin:"* ]] && export PATH="${PATH}:${ST_UTILS}/bin"
+
+# if we are in vargrant add this script to the .bashrc. So we don't have to
+# call it everytime we open a shell
+if [ -e /home/ubuntu/.bashrc ]; then
+    export VAGRANT=1
+    CMD="source ${ST_UTILS}/bin/st-env"
+    grep -q -F "${CMD}" /home/ubuntu/.bashrc || echo -e "${CMD}\n" >> /home/ubuntu/.bashrc
+fi
+
+# helper aliases and functions
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias ls='ls --color --block-size=M'
+alias rr='rm -rf'
+
+function mcd () {
+    mkdir "$1" && cd "$1"
+}
+
+function lcd() {
+    new_directory="$*";
+    if [ $# -eq 0 ]; then
+        new_directory=${HOME};
+    fi;
+    builtin cd "${new_directory}" && ls
+}
+
+function st() {
+    builtin cd "${ST_CORE}" && ls
+}
+
+function st-utils() {
+    builtin cd "${ST_UTILS}" && ls
+}
+
+function st-core() {
+    builtin cd "${ST_CORE}" && ls
+}
+
+# reset up the environment.
+function st-env() {
+    source $ST_UTILS/bin/st-env
+}
+
+# Set the python path for the host so IDEs launched from this
+# shell can find the sawtooth components.
+PYTHONPATH=${ST_CORE}/core
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/signing
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/validator
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/extensions/arcade
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/sdk/python
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/sdk/examples
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/rest_api
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/cli
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/common
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/common/tests
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/core
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/core/tests
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/families
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/families/tests
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/simulator
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/consensus/poet/simulator/tests
+
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/families/config
+PYTHONPATH=$PYTHONPATH:${ST_CORE}/families/supplychain/python
+export PYTHONPATH
+
+export PS1="\[\e]0;\w\a\]\[\e[38;5;033m\](SAWTOOTH)\[\e[32m\]\h \[\e[33m\]\w\[\e[0m\]\n\$ "
+echo "OS=$OS"
+echo "ST_CORE=$ST_CORE"
+echo "ST_HOME=$ST_HOME"
+echo "ST_UTILS=$ST_UTILS"
+echo "SAWTOOTH_HOME=$SAWTOOTH_HOME"
+
+cd ${ST_CORE}

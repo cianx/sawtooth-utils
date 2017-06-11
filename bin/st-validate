@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+#
+# Copyright 2017 Cian Montgomery
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ------------------------------------------------------------------------------
+
+set -e
+set -x
+
+BRANCH=$1
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR=${DIR%/} # remove trailing slashes
+
+export ST_UTILS="$( dirname $( cd "${DIR}" && pwd ) )"
+export ST_HOME="$( dirname ${ST_UTILS} )"
+export ST_CORE="${ST_HOME}/sawtooth-core"
+export ST_RESULTS="${ST_HOME}/results"
+
+# make test results directory
+export RUN_NAME="$BRANCH#$(date --iso-8601=min)"
+export BRANCH_RESULTS_DIR="$ST_RESULTS/$RUN_NAME"
+mkdir -p $BRANCH_RESULTS_DIR
+SUMMARY="$BRANCH_RESULTS_DIR/summary.txt"
+
+exec > >(tee -i $BRANCH_RESULTS_DIR/validation.txt)
+exec 2>&1
+
+# Report the environment
+echo "ST_CORE=$ST_CORE"
+echo "ST_HOME=$ST_HOME"
+echo "ST_UTILS=$ST_UTILS"
+echo "ST_RESULTS=$ST_RESULTS"
+echo "SAWTOOTH_HOME=$SAWTOOTH_HOME"
+
+# report what we are doing
+echo
+echo "Running validator on branch $BRANCH" | tee -a $SUMMARY
+echo "Saving results in $BRANCH_RESULTS_DIR" | tee -a $SUMMARY
+echo | tee -a $SUMMARY
+
+echo "Updating source " | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+cd $ST_CORE
+git fetch upstream
+git fetch origin
+# run in docker to get root privledges.... some docker containers in the build
+# generate collatoral as root. :(
+st-sudo git clean -fxd
+git checkout $BRANCH
+git reset --hard origin/$BRANCH
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+# from here on we ignore errors so we get all results.
+set +e
+# Record the diff of the branch we are testing.
+echo "Diffing..." | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+git diff upstream/master > ${BRANCH_RESULTS_DIR}/diff.txt
+if [ $? -ne 0 ]; then
+    echo "FAILED" | tee -a $SUMMARY
+fi
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+echo "Git logging..." | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+git log $(git log --pretty=format:'%h' -n 1 upstream/master)..HEAD > ${BRANCH_RESULTS_DIR}/git-log.txt
+if [ $? -ne 0 ]; then
+    echo "Branch not rebased on latest master" | tee -a $SUMMARY
+    git log HEAD~10..HEAD > ${BRANCH_RESULTS_DIR}/git-log.txt
+fi
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+echo "Building..." | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+build_all_prebuilt | tee ${BRANCH_RESULTS_DIR}/build.txt
+if [ $? -ne 0 ]; then
+    echo "FAILED" | tee -a $SUMMARY
+fi
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+echo "Linting... " | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+st-run run_lint -s upstream/master | tee ${BRANCH_RESULTS_DIR}/lint.txt
+if [ $? -ne 0 ]; then
+    echo "FAILED" | tee -a $SUMMARY
+fi
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+echo "Testing..." | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+bin/run_tests | tee ${BRANCH_RESULTS_DIR}/tests.txt
+if [ $? -ne 0 ]; then
+    echo "FAILED" | tee -a $SUMMARY
+fi
+cat ${BRANCH_RESULTS_DIR}/tests.txt | st-st-filter-test-results > ${BRANCH_RESULTS_DIR}/tests-filtered.txt
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+echo "Banditing... " | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+mkdir build
+st-run run_bandit | tee ${BRANCH_RESULTS_DIR}/bandit.txt
+if [ $? -ne 0 ]; then
+   echo "FAILED"
+fi
+echo "($[$(date +%s) - $STARTTIMEi])" | tee -a $SUMMARY
+
+echo "Docing..." | tee -a $SUMMARY
+STARTTIME=$(date +%s)
+st-make-docs | tee ${BRANCH_RESULTS_DIR}/docs.txt
+if [ $? -ne 0 ]; then
+    echo "FAILED" | tee -a $SUMMARY
+fi
+echo "($[$(date +%s) - $STARTTIME]s)" | tee -a $SUMMARY
+
+echo "Done!" | tee -a $SUMMARY
+
+ARCHIVE="$ST_RESULTS/$RUN_NAME.tar.gz"
+cd $ST_RESULTS
+tar czvf $ARCHIVE $RUN_NAME
+
+MAIL_FILE=$ST_HOME/notify_mail
+if [ -f $MAIL_FILE ]; then
+    MAIL_ADDRESS="$(cat $MAIL_FILE)"
+    if grep -q FAILED "$SUMMARY"; then
+    RESULT="FAILED"
+    else
+        RESULT="SUCCEEDED"
+    fi
+    mail -s "Build $RUN_NAME $RESULT" -t $MAIL_ADDRESS -A $ARCHIVE < $SUMMARY
+else
+    cat $SUMMARY
+fi
+

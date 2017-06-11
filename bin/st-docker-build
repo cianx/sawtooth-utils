@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+DOCKER_FILE=$1
+DOCKER_FILE_PATH=$(dirname $DOCKER_FILE)
+DOCKER_FILE_NAME=$(basename $DOCKER_FILE)
+
+docker build -f $DOCKER_FILE -t $DOCKER_FILE_NAME $DOCKER_FILE_PATH
