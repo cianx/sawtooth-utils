@@ -16,6 +16,15 @@ export ST_CORE="${ST_HOME}/sawtooth-core"
 # add our helper scripts to the path if they are not already there.
 [[ ":$PATH:" != *":${ST_UTILS}/bin:"* ]] && export PATH="${PATH}:${ST_UTILS}/bin"
 
+if  [ -e ${ST_HOME}/cyst ]; then
+    export CYST="${ST_HOME}/cyst"
+    [[ ":$PATH:" != *":${CYST}:"* ]] && PATH="${PATH}:${CYST}"
+fi
+
+if  [ -e ${ST_HOME}/bin ]; then
+    [[ ":$PATH:" != *":${ST_HOME}/bin:"* ]] && PATH="${PATH}:${ST_HOME}/bin"
+fi
+
 # if we are in vargrant add this script to the .bashrc. So we don't have to
 # call it everytime we open a shell
 if [ -e /home/ubuntu/.bashrc ]; then
@@ -41,6 +50,10 @@ function lcd() {
         new_directory=${HOME};
     fi;
     builtin cd "${new_directory}" && ls
+}
+
+function path() {
+    echo $PATH
 }
 
 function st() {
@@ -84,10 +97,9 @@ PYTHONPATH=$PYTHONPATH:${ST_CORE}/families/supplychain/python
 export PYTHONPATH
 
 export PS1="\[\e]0;\w\a\]\[\e[38;5;033m\](SAWTOOTH)\[\e[32m\]\h \[\e[33m\]\w\[\e[0m\]\n\$ "
-echo "OS=$OS"
 echo "ST_CORE=$ST_CORE"
 echo "ST_HOME=$ST_HOME"
 echo "ST_UTILS=$ST_UTILS"
-echo "SAWTOOTH_HOME=$SAWTOOTH_HOME"
+echo "CYST=$CYST"
 
 cd ${ST_CORE}
