@@ -100,7 +100,7 @@ docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-python"
     "sawtooth-rest_api"
-    "sawtooth-tp_config"
+    "sawtooth-tp_settings"
     "sawtooth-tp_intkey_python"
     "sawtooth-tp_supplychain_python"
     "sawtooth-tp_validator_registry"
