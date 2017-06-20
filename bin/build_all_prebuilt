@@ -191,4 +191,13 @@ done
 
 
 
+DOCKER_DEV='cianx/sawtooth-build-docs'
+docker pull $DOCKER_DEV
+declare -a docker_images=(
+    "sawtooth-build-docs")
+
+for target in "${docker_images[@]}"
+do
+    docker tag $DOCKER_DEV $target
+done
 
