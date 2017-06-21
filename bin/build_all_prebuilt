@@ -127,7 +127,8 @@ DOCKER_DEV='cianx/sawtooth-dev-go'
 docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-go"
-    "sawtooth-tp_intkey_go")
+    "sawtooth-tp_intkey_go"
+    "sawtooth-tp_xo_go")
 
 for target in "${docker_images[@]}"
 do
