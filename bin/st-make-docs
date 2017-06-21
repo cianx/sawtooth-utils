@@ -1,0 +1,10 @@
+#!/bin/bash
+
+docker run -it \
+    -v $ST_CORE:/project/sawtooth-core \
+    --user "$(id -u):$(id -g)" \
+    -v /etc/passwd:/etc/passwd:ro \
+    -v /etc/group:/etc/group:ro \
+    -v $ST_HOME/$USER:/home/$USER \
+    -t sawtooth-build-docs \
+    $*
