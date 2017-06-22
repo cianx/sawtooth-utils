@@ -152,7 +152,8 @@ DOCKER_DEV='cianx/sawtooth-dev-java'
 docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-java"
-    "sawtooth-tp_intkey_java")
+    "sawtooth-tp_intkey_java"
+    "sawtooth-tp_xo_java")
 
 for target in "${docker_images[@]}"
 do
