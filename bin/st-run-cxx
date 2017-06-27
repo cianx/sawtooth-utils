@@ -10,6 +10,7 @@ docker run -i -v $ST_CORE:/project/sawtooth-core \
             --env http_proxy=$http_proxy \
             --env HTTPS_PROXY=$HTTPS_PROXY \
             --env HTTP_PROXY=$HTTP_PROXY \
+            --user "$(id -u):$(id -g)" \
             -v /etc/passwd:/etc/passwd:ro \
             -v /etc/group:/etc/group:ro \
             -v $ST_HOME/$USER:/home/$USER \

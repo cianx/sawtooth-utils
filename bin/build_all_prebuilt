@@ -116,11 +116,6 @@ for target in "${docker_images[@]}"
 do
     docker tag $DOCKER_DEV $target
 done
-
-for target in "${docker_images[@]}"
-do
-    docker tag $DOCKER_DEV $target
-done
 docker_run sawtooth-dev-python
 
 DOCKER_DEV='cianx/sawtooth-dev-go'

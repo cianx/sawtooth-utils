@@ -18,4 +18,4 @@
 set -e
 set -x
 
-docker rm $(docker ps -aq)
+docker rm $1 $(docker ps -aq)
