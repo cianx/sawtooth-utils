@@ -99,16 +99,19 @@ docker pull $DOCKER_DEV
 
 declare -a docker_images=(
     "sawtooth-dev-python"
-    "sawtooth-rest_api"
-    "sawtooth-tp_settings"
-    "sawtooth-tp_intkey_python"
-    "sawtooth-tp_private_utxo_python"
-    "sawtooth-tp_supplychain_python"
+    "sawtooth-rest-api"
+    "sawtooth-settings-tp"
+    "sawtooth-intkey-tp-python"
+    "sawtooth-private-utxo-tp-python"
+    "sawtooth-supplychain-tp"
     "sawtooth-poet-validator-registry-tp"
-    "sawtooth-tp_validator_registry"
-    "sawtooth-tp_xo_python"
+    "sawtooth-xo-tp-python"
     "sawtooth-validator")
-
+for target in "${docker_images[@]}"
+do
+    docker tag $DOCKER_DEV $target
+done
+docker_run sawtooth-dev-python
 
 DOCKER_DEV='cianx/sawtooth-build-docs'
 docker pull $DOCKER_DEV
@@ -124,8 +127,9 @@ DOCKER_DEV='cianx/sawtooth-dev-go'
 docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-go"
-    "sawtooth-tp_intkey_go"
-    "sawtooth-tp_xo_go")
+    "sawtooth-intkey-tp-go"
+    "sawtooth-burrow-evm-tp"
+    "sawtooth-xo-tp-go")
 
 for target in "${docker_images[@]}"
 do
@@ -137,7 +141,8 @@ DOCKER_DEV='cianx/sawtooth-dev-go'
 docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-go"
-    "sawtooth-tp_intkey_go")
+    "sawtooth-burrow-evm-tp"
+    "sawtooth-xo-tp-go")
 
 for target in "${docker_images[@]}"
 do
@@ -149,8 +154,8 @@ DOCKER_DEV='cianx/sawtooth-dev-java'
 docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-java"
-    "sawtooth-tp_intkey_java"
-    "sawtooth-tp_xo_java")
+    "sawtooth-intkey-tp-java"
+    "sawtooth-xo-tp-java")
 
 for target in "${docker_images[@]}"
 do
@@ -166,8 +171,8 @@ DOCKER_DEV='cianx/sawtooth-dev-javascript'
 docker pull $DOCKER_DEV
 declare -a docker_images=(
     "sawtooth-dev-javascript"
-    "sawtooth-tp_intkey_javascript"
-    "sawtooth-tp_xo_javascript")
+    "sawtooth-intkey-tp-javascript"
+    "sawtooth-xo-tp-javascript")
 
 for target in "${docker_images[@]}"
 do
