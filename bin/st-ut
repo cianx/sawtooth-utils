@@ -15,5 +15,5 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-st-docker-test validator/tests/unit_validator.yaml
+st-docker-test validator/tests/unit_validator.yaml $*
 #st-run nose2-3 -s /project/sawtooth-core/validator/tests --log-capture -v $1
