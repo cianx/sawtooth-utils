@@ -102,7 +102,9 @@ declare -a docker_images=(
     "sawtooth-rest_api"
     "sawtooth-tp_settings"
     "sawtooth-tp_intkey_python"
+    "sawtooth-tp_private_utxo_python"
     "sawtooth-tp_supplychain_python"
+    "sawtooth-poet-validator-registry-tp"
     "sawtooth-tp_validator_registry"
     "sawtooth-tp_xo_python"
     "sawtooth-validator")

@@ -16,6 +16,6 @@
 # ------------------------------------------------------------------------------
 
 cd $ST_CORE
-time ./bin/run_tests 2>&1 | tee run_tests.txt
+time ./bin/run_tests $* 2>&1 | tee run_tests.txt
 
 
