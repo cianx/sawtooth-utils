@@ -17,4 +17,6 @@
 
 set -e
 cd $ST_CORE
-git clean -fxd
+st-run clean_all
+sudo git clean -fxd
+sudo find -type d -name node_modules -exec rm -rf \;
