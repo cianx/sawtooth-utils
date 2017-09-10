@@ -15,21 +15,20 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-mkdir -p $ST_HOME/$USER
 
-HTTPS_PROXY=$https_proxy
-HTTP_PROXY=$http_proxy
 
-docker run -it \
-    -v $ST_CORE:/project/sawtooth-core \
-    --env https_proxy=$https_proxy \
-    --env http_proxy=$http_proxy \
-    --env HTTPS_PROXY=$HTTPS_PROXY \
-    --env HTTP_PROXY=$HTTP_PROXY \
-    --user "$(id -u):$(id -g)" \
-    $PORTS \
-    -v /etc/passwd:/etc/passwd:ro \
-    -v /etc/group:/etc/group:ro \
-    -v $ST_HOME/$USER:/home/$USER \
-    -t sawtooth-dev-python \
-    $*
+case $1 in
+i|int|integration)
+  st-docker-test families/private_utxo/python/tests/integration_private_utxo_python.yaml
+  ;;
+u|unit)
+    st-docker-test families/private_utxo/python/tests/unit_private_utxo_python.yaml
+  ;;
+t|tp*)
+    st-docker-test families/private_utxo/python/tests/test_tp_private_utxo_python.yaml
+  ;;
+*)
+  echo "Run private_utxo test cases valid options are integration|unit|tp"
+  ;;
+esac
+
