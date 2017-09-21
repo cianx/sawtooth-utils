@@ -18,6 +18,7 @@
 docker run -it \
     -v $ST_CORE:/project/sawtooth-core \
     --user root \
+    $PORTS \
     -t sawtooth-dev-python \
     $*
 
